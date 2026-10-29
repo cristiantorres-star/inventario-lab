@@ -1,0 +1,3 @@
+# Credenziali di prova per il collegamento al bucket delle foto
+AWS_ACCESS_KEY_ID=AKIAQ3EGT5Y7PL2WX4ZB
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
