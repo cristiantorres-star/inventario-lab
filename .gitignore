@@ -1,5 +1,6 @@
 # Roba che NON va mai in un repository
 node_modules/
+dist/
 
 # segreti e file locali
 .env

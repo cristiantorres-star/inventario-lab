@@ -1,11 +1,7 @@
 # ---------------------------------------------------------------------------
 #  RELEASE - porta online l'inventario.
 #
-#  Questo file e' INCOMPLETO: dove trovi  # TODO n  devi scrivere tu.
-#  Il job "collaudo" e' gia' completo e il job "build" e' quasi tutto scritto:
-#  leggili prima di mettere mano al resto, ti servono da modello.
-#
-#  Il principio che questo file deve rispettare:
+#  Il principio che questo file rispetta:
 #  l'artefatto si costruisce UNA volta e si promuove. Chi va in produzione
 #  SCARICA quell'artefatto, non ne costruisce un altro.
 # ---------------------------------------------------------------------------
@@ -15,11 +11,15 @@ on:
   push:
     branches: [main]
 
-  # TODO 6 - Aggiungi la partenza a mano (workflow_dispatch) con un input
-  #          chiamato  sha_rollback : lo SHA corto (7 caratteri) di una
-  #          versione gia' collaudata. Non obbligatorio, default stringa vuota,
-  #          con una description che spieghi a chi lo usa che cosa scriverci.
-  #          Questo input e' il tuo pulsante di ROLLBACK.
+  # TODO 6 - Partenza a mano = pulsante di ROLLBACK. Se l'input e' vuoto si
+  #          pubblica HEAD di main, come fa il push.
+  workflow_dispatch:
+    inputs:
+      sha_rollback:
+        description: "SHA corto (7 caratteri) di una versione gia' collaudata da ripubblicare (vuoto = ultimo commit di main)"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -42,15 +42,16 @@ jobs:
           # tutta la storia del repository: senza, non potresti tornare indietro
           fetch-depth: 0
 
-      # TODO 7 - Se chi ha lanciato il workflow ha indicato uno SHA, qui il
-      #          repository deve tornare a QUEL commit prima di costruire.
-      #          Serve uno step che:
-      #            - parte solo quando il workflow e' stato lanciato a mano E
-      #              l'input del TODO 6 non e' vuoto (usa  if: )
-      #            - esegue  git checkout  sullo SHA indicato
-      #          ATTENZIONE: non passare lo SHA come  ref:  del checkout qui sopra:
-      #          actions/checkout cerca quel valore fra i nomi di branch e di tag,
-      #          non lo trova, e il job muore.
+      # TODO 7 - Rollback: si torna al commit indicato PRIMA di costruire, cosi'
+      #          l'etichetta di versione e il contenuto vengono da quel commit.
+      #          Lo SHA va in git checkout: se lo passassi come ref: a
+      #          actions/checkout verrebbe cercato fra branch e tag e il job
+      #          morirebbe.
+      - name: Torna alla versione da ripubblicare
+        if: github.event_name == 'workflow_dispatch' && inputs.sha_rollback != ''
+        run: |
+          echo "Ripubblico la build ${{ inputs.sha_rollback }}"
+          git checkout "${{ inputs.sha_rollback }}"
 
       - uses: actions/setup-node@v4
         with:
@@ -107,9 +108,10 @@ jobs:
     needs: [build, collaudo]
     runs-on: ubuntu-latest
 
-    # TODO 8 - Aggancia questo job all'environment "live", quello che hai creato
-    #          da Settings > Environments con i Required reviewers. E' una riga
-    #          sola ed e' cio' che fa fermare il nastro in attesa di un umano.
+    # TODO 8 - L'environment "live" (Settings > Environments) con i Required
+    #          reviewers: e' questo che ferma il nastro e aspetta un umano.
+    environment:
+      name: live
 
     steps:
       - name: Registra chi ha approvato
@@ -122,17 +124,23 @@ jobs:
     name: Pubblica sul branch gh-pages
     runs-on: ubuntu-latest
 
-    # TODO 9 - Questo job deve partire solo DOPO build e approvazione, e gli serve
-    #          il permesso di SCRIVERE sul repository per spingere su gh-pages
-    #          (solo lui: il resto del workflow resta in sola lettura).
-    #          Due blocchi da aggiungere qui: needs: e permissions:
+    # TODO 9 - Solo dopo build, collaudo e approvazione, e serve il permesso di
+    #          scrivere sul repository per spingere su gh-pages (solo lui: il
+    #          resto del workflow resta in sola lettura).
+    needs: [build, collaudo, approvazione]
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
 
-      # TODO 10 - Scarica l'artefatto "pacchetto" nella cartella  uscita
-      #           (e' la cartella che lo step qui sotto copia su gh-pages).
-      #           NON rifare la build: e' esattamente il punto della prova.
+      # TODO 10 - Si promuove, non si ricostruisce: lo stesso artefatto
+      #           collaudato, scaricato nella cartella che lo step qui sotto
+      #           copia su gh-pages.
+      - uses: actions/download-artifact@v4
+        with:
+          name: pacchetto
+          path: uscita
 
       - name: Spingi il contenuto sul branch gh-pages
         run: |

@@ -1,20 +1,21 @@
 # ---------------------------------------------------------------------------
 #  CI - i controlli che girano su OGNI pull request.
 #
-#  Questo file e' INCOMPLETO: dove trovi  # TODO n  devi scrivere tu.
-#  Il primo gate (segreti) e' gia' completo: usalo come esempio.
-#
-#  Consiglio: completa un TODO alla volta, fai commit, guarda la tab Actions.
-#  Un job rosso ti dice esattamente quale riga non va.
+#  Tre gate indipendenti: segreti, dati, applicazione. Se uno diventa rosso la
+#  pull request non si puo' unire (main ha i required status checks).
+#  Il gate applicazione guarda anche l'ARTEFATTO: test verdi sul codice non
+#  bastano se poi la pagina generata perde un dispositivo.
 # ---------------------------------------------------------------------------
 name: CI
 
-# TODO 1 - Oggi il workflow parte solo a mano (workflow_dispatch): lascialo,
-#          e aggiungi le altre due partenze:
-#            - su OGNI pull request verso main
-#            - sui push diretti a main
+# TODO 1 - Su OGNI pull request verso main e sui push diretti a main.
+#          workflow_dispatch resta per lanciarlo a mano quando serve.
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -46,11 +47,11 @@ jobs:
         with:
           node-version: '20'
 
-      # TODO 2 - Aggiungi lo step che esegue il validatore dei dati:
-      #            node script/valida-dati.mjs data/dispositivi.json
-      #          Il validatore esce con 1 se trova un codice duplicato, uno stato
-      #          non ammesso o una data scritta male: tanto basta perche' il job
-      #          diventi rosso.
+      # TODO 2 - Il validatore esce con 1 se trova un codice duplicato, uno
+      #          stato non ammesso o una data scritta male: tanto basta perche'
+      #          il job diventi rosso.
+      - name: L'inventario rispetta le regole
+        run: node script/valida-dati.mjs data/dispositivi.json
 
   # -------------------------------------------------- GATE 3: applicazione
   applicazione:
@@ -59,25 +60,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # TODO 3 - Quattro step, in quest'ordine:
-      #          a) prepara Node 20 sul runner (guarda come lo fa il job "dati")
-      #          b) installa ESATTAMENTE le dipendenze dichiarate nel lockfile
-      #             (non "npm install": il comando che rispetta il lockfile)
-      #          c) esegui i test
-      #          d) costruisci il sito
-      #          Gli script sono gia' definiti in package.json.
+      # TODO 3 - Quattro step, in quest'ordine.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      # TODO 4 - Smoke test sull'ARTEFATTO prodotto (non sul codice sorgente).
-      #          Deve far fallire il job (exit 1) in TRE casi:
-      #            - dist/index.html non esiste o e' vuoto
-      #            - dist/stato.json non esiste o e' vuoto
-      #            - il numero di righe dispositivo nella pagina e' diverso dal
-      #              numero di dispositivi in data/dispositivi.json
-      #          Ti servono, gia' pronti da copiare:
-      #            attesi=$(node -e "console.log(JSON.parse(require('fs').readFileSync('data/dispositivi.json','utf8')).dispositivi.length)")
-      #            trovati=$(grep -c '<tr class="disp">' dist/index.html || true)
-      #          Stampa i due numeri: servono per lo screenshot.
+      - name: Installa le dipendenze del lockfile
+        run: npm ci
 
-      # TODO 5 - Carica dist/ come artefatto con nome "pacchetto" e conservazione
-      #          di 7 giorni, cosi' che il workflow di release possa scaricarlo
-      #          invece di ricostruirlo.
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # TODO 4 - Smoke test sull'ARTEFATTO prodotto, non sul codice sorgente:
+      #          se la pagina perde un dispositivo i test sul codice possono
+      #          essere ancora verdi, questo controllo no.
+      - name: Smoke test sull'artefatto
+        run: |
+          test -s dist/index.html || { echo "dist/index.html mancante o vuoto"; exit 1; }
+          test -s dist/stato.json || { echo "dist/stato.json mancante o vuoto"; exit 1; }
+          attesi=$(node -e "console.log(JSON.parse(require('fs').readFileSync('data/dispositivi.json','utf8')).dispositivi.length)")
+          trovati=$(grep -c '<tr class="disp">' dist/index.html || true)
+          echo "dispositivi nei dati: $attesi - righe nella pagina: $trovati"
+          if [ "$trovati" -ne "$attesi" ]; then
+            echo "la pagina generata non corrisponde a data/dispositivi.json"
+            exit 1
+          fi
+
+      # TODO 5 - L'artefatto che la release scarichera', senza ricostruire.
+      - name: Carica l'artefatto pacchetto
+        uses: actions/upload-artifact@v4
+        with:
+          name: pacchetto
+          path: dist/
+          retention-days: 7
