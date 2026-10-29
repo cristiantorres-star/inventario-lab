@@ -1,0 +1,9 @@
+{
+  "versione": "dadd557",
+  "totale": 6,
+  "perStato": {
+    "disponibile": 3,
+    "in prestito": 2,
+    "guasto": 1
+  }
+}

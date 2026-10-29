@@ -1,0 +1,16 @@
+:root { --bg:#0f1115; --fg:#e8e8e8; --muted:#8a8f98; --acc:#ff6a00; --ok:#00c776; --ko:#e5484d; --mid:#f5a524; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--fg); }
+header, main, footer { max-width: 960px; margin: 0 auto; padding: 16px; }
+h1 { margin: 8px 0 0; color: var(--acc); }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.riepilogo { display:flex; gap:12px; flex-wrap:wrap; margin: 8px 0 16px; }
+.riepilogo span { border:1px solid #2a2e36; border-radius:6px; padding:6px 10px; }
+table { width:100%; border-collapse: collapse; }
+th, td { text-align:left; padding:8px; border-bottom:1px solid #2a2e36; }
+th { color: var(--muted); font-weight:600; }
+.cod { font-family: ui-monospace, monospace; }
+.stato-disponibile { color: var(--ok); }
+.stato-in-prestito { color: var(--mid); }
+.stato-guasto { color: var(--ko); }
+footer { color: var(--muted); font-size: 0.9em; }

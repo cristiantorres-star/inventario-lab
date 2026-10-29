@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario laboratorio - ITS ICT Piemonte</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Inventario laboratorio</h1>
+    <p class="sub">ITS ICT Piemonte - Aula 10 - Via Jacopo Durandi 10</p>
+  </header>
+  <main>
+    <div class="riepilogo">
+      <span>Disponibili: <b>3</b></span>
+      <span>In prestito: <b>2</b></span>
+      <span>Guasti: <b>1</b></span>
+    </div>
+    <table>
+      <thead><tr><th>Codice</th><th>Tipo</th><th>Modello</th><th>Stato</th><th>Aggiornato</th></tr></thead>
+      <tbody>
+      <tr class="disp">
+        <td class="cod">LAB-101</td>
+        <td>portatile</td>
+        <td>ThinkPad T14 Gen 4</td>
+        <td class="stato-disponibile">disponibile</td>
+        <td>2026-10-01</td>
+      </tr>
+      <tr class="disp">
+        <td class="cod">LAB-102</td>
+        <td>portatile</td>
+        <td>ThinkPad T14 Gen 4</td>
+        <td class="stato-in-prestito">in prestito</td>
+        <td>2026-10-14</td>
+      </tr>
+      <tr class="disp">
+        <td class="cod">LAB-201</td>
+        <td>raspberry</td>
+        <td>Raspberry Pi 5 - 8 GB</td>
+        <td class="stato-disponibile">disponibile</td>
+        <td>2026-09-22</td>
+      </tr>
+      <tr class="disp">
+        <td class="cod">LAB-301</td>
+        <td>switch</td>
+        <td>Switch gestito 24 porte</td>
+        <td class="stato-guasto">guasto</td>
+        <td>2026-10-20</td>
+      </tr>
+      <tr class="disp">
+        <td class="cod">LAB-302</td>
+        <td>router</td>
+        <td>Router di laboratorio</td>
+        <td class="stato-disponibile">disponibile</td>
+        <td>2026-09-30</td>
+      </tr>
+      <tr class="disp">
+        <td class="cod">LAB-401</td>
+        <td>proiettore</td>
+        <td>Proiettore aula</td>
+        <td class="stato-in-prestito">in prestito</td>
+        <td>2026-10-27</td>
+      </tr>
+      </tbody>
+    </table>
+  </main>
+  <footer>
+    <p>Dispositivi censiti: 6 - versione <code>dadd557</code></p>
+  </footer>
+</body>
+</html>
