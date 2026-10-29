@@ -1,0 +1,12 @@
+{
+  "istituto": "ITS ICT Piemonte",
+  "laboratorio": "Aula 10 - Via Jacopo Durandi 10",
+  "dispositivi": [
+    { "codice": "LAB-101", "tipo": "portatile",   "modello": "ThinkPad T14 Gen 4",         "stato": "disponibile", "aggiornato": "2026-10-01" },
+    { "codice": "LAB-102", "tipo": "portatile",   "modello": "ThinkPad T14 Gen 4",         "stato": "in prestito", "aggiornato": "2026-10-14" },
+    { "codice": "LAB-201", "tipo": "raspberry",   "modello": "Raspberry Pi 5 - 8 GB",      "stato": "disponibile", "aggiornato": "2026-09-22" },
+    { "codice": "LAB-301", "tipo": "switch",      "modello": "Switch gestito 24 porte",    "stato": "guasto",      "aggiornato": "2026-10-20" },
+    { "codice": "LAB-302", "tipo": "router",      "modello": "Router di laboratorio",      "stato": "disponibile", "aggiornato": "2026-09-30" },
+    { "codice": "LAB-401", "tipo": "proiettore",  "modello": "Proiettore aula",            "stato": "in prestito", "aggiornato": "2026-10-27" }
+  ]
+}
